@@ -700,16 +700,18 @@
 		/**
 		 * 获取文件扩展名并转为大写
 		 * @author 油小猴
+		 * @author chyhtz
+		 * @author hmjz100
+		 * @description 仅识别最后一个点之后的扩展名；无扩展名、点文件及尾点返回空字符串
 		 * @param {String} name - 完整文件名
 		 * @returns {String} 大写的文件扩展名（如 `TXT`）
 		 */
 		getExtension(name) {
-			const reg = /(?!\.)\w+$/;
-			if (reg.test(name)) {
-				const match = name.match(reg);
-				return match[0].toUpperCase();
-			}
-			return "";
+			if (typeof name !== "string" || name === "" || name.startsWith(".")) return "";
+			const dot = name.lastIndexOf(".");
+			if (dot <= 0) return "";
+			const ext = name.slice(dot + 1);
+			return ext !== "" && !/[^\w]/.test(ext) ? ext.toUpperCase() : "";
 		},
 
 		/**
@@ -5348,7 +5350,9 @@ button.downloadSubtitle:disabled {
 							if (val === undefined || val === null) return "";
 							const strVal = String(val);
 							const len = new Blob([strVal]).size; // 坑2：使用 blob.size，而不是 length
-							return `${key}=${len}:${strVal}`;
+							let final = `${key}=${len}`;
+							if (len > 0) final += `:${strVal}`;
+							return final;
 						};
 						const fields = [
 							format(4, ext), // 4: 文件类型
@@ -6629,7 +6633,7 @@ button.downloadSubtitle:disabled {
 				temp.page = temp.main.detectPage();
 				if ($(".pl-button").length > 0 || !temp.page || temp.page !== "home") return;
 				const $button = $(`<div class="ali-button pl-button">
-					<span data-role="icon" data-render-as="svg" class="icon">${temp.main.svg}下载助手</span>
+					<span data-role="icon" data-render-as="svg" class="icon" style="display:flex;align-items:center">${temp.main.svg}下载助手</span>
 					<ul class="pl-dropdown-menu" style="top:30px; right:0;">
 						<li class="pl-button-mode" data-mode="api"><svg class="pl-icon"><use xlink:href="#pl-icon-fa-downward"/></svg><span>API 下载</span></li>
 						<li class="pl-button-mode" data-mode="curl"><svg class="pl-icon"><use xlink:href="#pl-icon-fa-plug"/></svg><span>cURL 下载</span></li>
@@ -6647,7 +6651,7 @@ button.downloadSubtitle:disabled {
 				temp.page = temp.main.detectPage();
 				if ($(".pl-button").length > 0 || !temp.page || temp.page !== "share") return;
 				const $button = $(`<div class="ali-button pl-button">
-					<span data-role="icon" data-render-as="svg" class="icon">${temp.main.svg}下载助手</span>
+					<span data-role="icon" data-render-as="svg" class="icon" style="display:flex;align-items:center">${temp.main.svg}下载助手</span>
 					<ul class="pl-dropdown-menu" style="top:30px; right:16px;">
 						<li class="pl-button-mode pl-button-save"><svg class="pl-icon"><use xlink:href="#pl-icon-fa-drive"/></svg><span>保存后下载</span></li>
 						<li class="pl-button-mode listener-open-setting"><svg class="pl-icon"><use xlink:href="#pl-icon-fa-gear"/></svg><span>助手设置</span></li>
@@ -6660,7 +6664,7 @@ button.downloadSubtitle:disabled {
 			});
 		},
 		addInitButton() {
-			const $button = $(`<div class="ali-button pl-button-init"><span data-role="icon" data-render-as="svg" class="icon">${temp.main.svg}点我点亮</span></div>`);
+			const $button = $(`<div class="ali-button pl-button-init"><span data-role="icon" data-render-as="svg" class="icon" style="display:flex;align-items:center">${temp.main.svg}点我点亮</span></div>`);
 			$button.click(base.showInitDialog);
 			base.waitForKeyElements(config.$aliyun.mount.home, (element) => {
 				temp.page = temp.main.detectPage();
